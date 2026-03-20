@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<h1>{{ post.title }}</h1>
+<p><small>Topic: {{ post.topic.text if post.topic else "—" }} | Created: {{ post.created_at.strftime("%Y-%m-%d %H:%M") if post.created_at else "—" }} | Words: {{ post.word_count }}</small></p>
+<a href="/posts/{{ post.id }}/edit">Edit</a>
+<hr>
+<div class="post-body">{{ body_html | safe }}</div>
+{% endblock %}

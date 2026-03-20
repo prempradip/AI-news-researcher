@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<h2>Add Topic</h2>
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+<form method="post" action="/topics">
+    <input type="text" name="topic_text" placeholder="Enter a topic (1–200 chars)" size="50" maxlength="200">
+    <button type="submit">Add Topic</button>
+</form>
+
+<h2>Topics</h2>
+{% if topics %}
+<ul>
+{% for topic in topics %}
+    <li>
+        {{ topic.text }}
+        <form method="post" action="/topics/{{ topic.id }}/run" style="display:inline">
+            <button type="submit">Run</button>
+        </form>
+        <form method="post" action="/topics/{{ topic.id }}/delete" style="display:inline">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No topics yet.</p>
+{% endif %}
+
+<h2>Run History</h2>
+{% if runs %}
+<table>
+    <thead>
+        <tr><th>Topic</th><th>Started</th><th>Duration</th><th>Status</th><th>Error</th></tr>
+    </thead>
+    <tbody>
+    {% for run in runs %}
+        <tr id="run-{{ run.id }}">
+            <td>{{ run.topic.text if run.topic else "—" }}</td>
+            <td>{{ run.started_at.strftime("%Y-%m-%d %H:%M:%S") if run.started_at else "—" }}</td>
+            <td>
+                {% if run.ended_at and run.started_at %}
+                    {{ (run.ended_at - run.started_at).seconds }}s
+                {% else %}—{% endif %}
+            </td>
+            <td class="status-{{ run.status.value }}" data-run-id="{{ run.id }}" data-status="{{ run.status.value }}">
+                {{ run.status.value }}
+            </td>
+            <td>{{ run.error_msg or "" }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No runs yet.</p>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    var cells = document.querySelectorAll('[data-run-id]');
+    cells.forEach(function(cell) {
+        var runId = cell.getAttribute('data-run-id');
+        var status = cell.getAttribute('data-status');
+        if (status === 'pending' || status === 'running') {
+            var interval = setInterval(function() {
+                fetch('/api/runs/' + runId + '/status')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        cell.textContent = data.status;
+                        cell.className = 'status-' + data.status;
+                        cell.setAttribute('data-status', data.status);
+                        if (data.status !== 'pending' && data.status !== 'running') {
+                            clearInterval(interval);
+                        }
+                    });
+            }, 5000);
+        }
+    });
+})();
+</script>
+{% endblock %}

@@ -17,14 +17,14 @@ Implement a Python FastAPI + CrewAI application with a SQLite persistence layer,
     - **Property 10: Missing environment variable causes startup failure**
     - **Validates: Requirements 6.1, 6.2, 6.3**
 
-- [-] 2. Database models and migrations
+- [x] 2. Database models and migrations
   - Implement `app/models.py` with SQLAlchemy ORM models: `Topic`, `Run`, `BlogPost` with all fields, FK relationships, and CASCADE DELETE constraints as specified in the design
   - Define `RunStatus` enum: `pending | running | completed | failed`
   - Set up `app/database.py` with engine creation and `SessionLocal` factory using `DATABASE_URL` from settings
   - Initialize Alembic and create the initial migration for all three tables
   - _Requirements: 1.2, 2.6, 3.4_
 
-- [~] 3. Post Store (repository layer)
+- [x] 3. Post Store (repository layer)
   - Implement `app/store.py` with all repository functions: `create_topic`, `list_topics`, `delete_topic`, `create_run`, `update_run_status`, `list_runs`, `get_run`, `save_blog_post`, `list_blog_posts`, `get_blog_post`, `update_blog_post`
   - Ensure `list_topics` returns results ordered by `created_at` DESC
   - Ensure `list_blog_posts` returns results ordered by `created_at` DESC
@@ -62,10 +62,10 @@ Implement a Python FastAPI + CrewAI application with a SQLite persistence layer,
     - Test `get_run` raises / returns None for unknown IDs
     - _Requirements: 1.2, 1.4, 1.5, 3.4, 4.3_
 
-- [~] 4. Checkpoint — Ensure all store and config tests pass
+- [x] 4. Checkpoint — Ensure all store and config tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [~] 5. CrewAI agents and crew builder
+- [x] 5. CrewAI agents and crew builder
   - Implement `app/crew.py` with `research_agent`, `writer_agent`, and `build_crew(topic: str) -> Crew`
   - Configure `research_task` to require at least 5 results with title, URL, and snippet per result
   - Configure `write_task` to produce Markdown with title, intro, ≥3 body sections with headings, and a conclusion
@@ -76,7 +76,7 @@ Implement a Python FastAPI + CrewAI application with a SQLite persistence layer,
     - **Property 7: Blog post structure invariant**
     - **Validates: Requirements 3.2, 3.3**
 
-- [~] 6. Background run worker
+- [x] 6. Background run worker
   - Implement `app/worker.py` with `execute_run(run_id: str, topic_text: str)` function
   - On entry: call `store.update_run_status(run_id, "running")`
   - Invoke `crew.build_crew(topic_text).kickoff()` and capture the Writer_Agent output
@@ -99,10 +99,10 @@ Implement a Python FastAPI + CrewAI application with a SQLite persistence layer,
     - Test writer failure path: run transitions to `failed`, error_msg is set
     - _Requirements: 2.4, 2.5, 3.5_
 
-- [~] 7. Checkpoint — Ensure all worker and crew tests pass
+- [x] 7. Checkpoint — Ensure all worker and crew tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [~] 8. FastAPI routes and application wiring
+- [x] 8. FastAPI routes and application wiring
   - Implement `app/main.py` with all routes from the design: `GET /`, `POST /topics`, `DELETE /topics/{id}`, `POST /topics/{id}/run`, `GET /posts`, `GET /posts/{id}`, `GET /posts/{id}/edit`, `POST /posts/{id}/edit`, `GET /api/runs/{id}/status`
   - Mount a `ThreadPoolExecutor` (or `asyncio` background task) to dispatch `worker.execute_run` without blocking the event loop
   - Return HTTP 404 for unknown post/run IDs
@@ -114,7 +114,7 @@ Implement a Python FastAPI + CrewAI application with a SQLite persistence layer,
     - Use `httpx.AsyncClient` with `TestClient` to test form validation (blank topic → 422), topic creation redirect, 404 on unknown post, status endpoint JSON shape
     - _Requirements: 1.1, 1.3, 4.1, 5.1_
 
-- [~] 9. Jinja2 templates
+- [x] 9. Jinja2 templates
   - Create `templates/base.html` with shared layout, navigation links, and a `<script>` block for the polling logic (fetch `/api/runs/{id}/status` every 5 seconds, update status badge in-place)
   - Create `templates/index.html` extending `base.html`: topic submission form, topic list with delete buttons, run history table (topic name, start time, duration, status, error message)
   - Create `templates/posts.html` extending `base.html`: blog post list with topic name, run date, word count, and link to post view
@@ -126,7 +126,7 @@ Implement a Python FastAPI + CrewAI application with a SQLite persistence layer,
     - Test that a known Markdown string (with headings, paragraphs) renders expected HTML elements via the server-side `markdown` library
     - _Requirements: 4.2_
 
-- [~] 10. Final checkpoint — Ensure all tests pass
+- [x] 10. Final checkpoint — Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
