@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+crewai
+crewai-tools
+sqlalchemy
+alembic
+python-dotenv
+markdown
+hypothesis
+pytest
+httpx
